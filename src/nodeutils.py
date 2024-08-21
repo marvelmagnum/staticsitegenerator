@@ -1,5 +1,13 @@
 import re
-from textnode import TextNode
+from textnode import (
+    TextNode,
+    text_type_text,
+    text_type_bold,
+    text_type_italic,
+    text_type_code,
+    text_type_link,
+    text_type_image
+)
 
 def split_textnode_delimiter(input_nodes, delimiter, text_type):
     result = []
@@ -7,7 +15,7 @@ def split_textnode_delimiter(input_nodes, delimiter, text_type):
         if not isinstance(node, TextNode):
             raise ValueError("Only TextNode type input is allowed")
         
-        if node.text_type != 'text':    #only text type is process. Other textnode types are unaffected.
+        if node.text_type != text_type_text:    #only text type is process. Other textnode types are unaffected.
             result.append(node)
             continue
 
@@ -23,7 +31,7 @@ def split_textnode_delimiter(input_nodes, delimiter, text_type):
                     is_inline = True
                 continue
 
-            work_lst.append(TextNode(chunks[i], text_type if is_inline else "text"))
+            work_lst.append(TextNode(chunks[i], text_type if is_inline else text_type_text))
             is_inline = not is_inline
 
         result += work_lst
@@ -46,12 +54,12 @@ def __node_text_to_inline_type__(node_text, matches, token_template, type):
         token = f"{tokens[0]}{match[0]}{tokens[1]}{match[1]}{tokens[2]}"
         chunks = last_chunk.split(token, 1)
         if chunks[0]:   # create nodes for non-empty chunks
-            result.append(TextNode(chunks[0], "text"))
+            result.append(TextNode(chunks[0], text_type_text))
         result.append(TextNode(match[0], type, match[1]))
         last_chunk = chunks[1]
 
     if last_chunk:  # add any residual content
-        result.append(TextNode(last_chunk, "text"))
+        result.append(TextNode(last_chunk, text_type_text))
 
     return result
 
@@ -61,7 +69,7 @@ def split_nodes_image(input_nodes):
         if not isinstance(node, TextNode):
             raise ValueError("Only TextNode type input is allowed")
     
-        if node.text_type != 'text':    # only text type is process. Other textnode types are unaffected.
+        if node.text_type != text_type_text:    # only text type is process. Other textnode types are unaffected.
             result.append(node)
             continue
 
@@ -71,7 +79,7 @@ def split_nodes_image(input_nodes):
             result.append(node)
             continue
 
-        result += __node_text_to_inline_type__(node.text, matches, f"![item1](item2)", "image")
+        result += __node_text_to_inline_type__(node.text, matches, f"![item1](item2)", text_type_image)
     return result
 
 def split_nodes_link(input_nodes):
@@ -80,7 +88,7 @@ def split_nodes_link(input_nodes):
         if not isinstance(node, TextNode):
             raise ValueError("Only TextNode type input is allowed")
         
-        if node.text_type != 'text':    # only text type is process. Other textnode types are unaffected.
+        if node.text_type != text_type_text:    # only text type is process. Other textnode types are unaffected.
             result.append(node)
             continue
 
@@ -90,14 +98,14 @@ def split_nodes_link(input_nodes):
             result.append(node)
             continue
         
-        result += __node_text_to_inline_type__(node.text, matches, f"[item1](item2)", "link")
+        result += __node_text_to_inline_type__(node.text, matches, f"[item1](item2)", text_type_link)
     return result
 
 def text_to_textnodes(text):
-    text_node = TextNode(text, "text")
-    result = split_textnode_delimiter([text_node], "**", "bold")
-    result = split_textnode_delimiter(result, "*", "italic")
-    result = split_textnode_delimiter(result, "`", "code")
+    text_node = TextNode(text, text_type_text)
+    result = split_textnode_delimiter([text_node], "**", text_type_bold)
+    result = split_textnode_delimiter(result, "*", text_type_italic)
+    result = split_textnode_delimiter(result, "`", text_type_code)
     result = split_nodes_image(result)
     result = split_nodes_link(result)
     return result
