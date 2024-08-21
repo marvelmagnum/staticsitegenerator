@@ -56,8 +56,22 @@ class TestNodeUtils(unittest.TestCase):
         self.assertEqual(result[0][1], "https://www.boot.dev")
         self.assertEqual(result[1][0], "to youtube")
         self.assertEqual(result[1][1], "https://www.youtube.com/@bootdotdev")
+
+    def test_split_nodes_image_start(self):
+        node = TextNode("![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg) are in this text", "text")
+        result = nodeutils.split_nodes_image([node])
+        self.assertEqual(result[0].text, "rick roll")
+        self.assertEqual(result[0].text_type, "image")
+        self.assertEqual(result[0].url, "https://i.imgur.com/aKaOqIh.gif")
+        self.assertEqual(result[1].text, " and ")
+        self.assertEqual(result[1].text_type, "text")
+        self.assertEqual(result[2].text, "obi wan")
+        self.assertEqual(result[2].text_type, "image")
+        self.assertEqual(result[2].url, "https://i.imgur.com/fJRm4Vk.jpeg")
+        self.assertEqual(result[3].text, " are in this text")
+        self.assertEqual(result[3].text_type, "text")
         
-    def test_split_nodes_image(self):
+    def test_split_nodes_image_end(self):
         node = TextNode("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)", "text")
         result = nodeutils.split_nodes_image([node])
         self.assertEqual(result[0].text, "This is text with a ")
@@ -78,7 +92,21 @@ class TestNodeUtils(unittest.TestCase):
         self.assertEqual(result[0].text_type, "text")
         self.assertEqual(len(result), 1)
 
-    def test_split_nodes_link(self):
+    def test_split_nodes_link_begin(self):
+        node = TextNode("[to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) are links in this text", "text")
+        result = nodeutils.split_nodes_link([node])
+        self.assertEqual(result[0].text, "to boot dev")
+        self.assertEqual(result[0].text_type, "link")
+        self.assertEqual(result[0].url, "https://www.boot.dev")
+        self.assertEqual(result[1].text, " and ")
+        self.assertEqual(result[1].text_type, "text")
+        self.assertEqual(result[2].text, "to youtube")
+        self.assertEqual(result[2].text_type, "link")
+        self.assertEqual(result[2].url, "https://www.youtube.com/@bootdotdev")
+        self.assertEqual(result[3].text, " are links in this text")
+        self.assertEqual(result[3].text_type, "text")
+
+    def test_split_nodes_link_end(self):
         node = TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)", "text")
         result = nodeutils.split_nodes_link([node])
         self.assertEqual(result[0].text, "This is text with a link ")
@@ -98,6 +126,32 @@ class TestNodeUtils(unittest.TestCase):
         self.assertEqual(result[0].text, "This is text with a link to boot dev and to youtube")
         self.assertEqual(result[0].text_type, "text")
         self.assertEqual(len(result), 1)
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        result = nodeutils.text_to_textnodes(text)
+        self.assertEqual(result[0].text, "This is ")
+        self.assertEqual(result[0].text_type, "text")
+        self.assertEqual(result[1].text, "text")
+        self.assertEqual(result[1].text_type, "bold")
+        self.assertEqual(result[2].text, " with an ")
+        self.assertEqual(result[2].text_type, "text")
+        self.assertEqual(result[3].text, "italic")
+        self.assertEqual(result[3].text_type, "italic")
+        self.assertEqual(result[4].text, " word and a ")
+        self.assertEqual(result[4].text_type, "text")
+        self.assertEqual(result[5].text, "code block")
+        self.assertEqual(result[5].text_type, "code")
+        self.assertEqual(result[6].text, " and an ")
+        self.assertEqual(result[6].text_type, "text")
+        self.assertEqual(result[7].text, "obi wan image")
+        self.assertEqual(result[7].text_type, "image")
+        self.assertEqual(result[7].url, "https://i.imgur.com/fJRm4Vk.jpeg")
+        self.assertEqual(result[8].text, " and a ")
+        self.assertEqual(result[8].text_type, "text")
+        self.assertEqual(result[9].text, "link")
+        self.assertEqual(result[9].text_type, "link")
+        self.assertEqual(result[9].url, "https://boot.dev")
 
 if __name__ == "__main__":
     unittest.main()
