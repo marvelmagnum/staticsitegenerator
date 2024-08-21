@@ -85,7 +85,3 @@ def split_nodes_link(input_nodes):
         
         result += __node_text_to_inline_type__(node.text, matches, f"[item1](item2)", "link")
     return result
-
-node = TextNode("This is text with a and", "text")
-result = split_nodes_image([node])
-print(result)
