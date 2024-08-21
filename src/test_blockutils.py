@@ -239,3 +239,82 @@ class TestBlockToType(unittest.TestCase):
         text = """This is a paragraph of text. It has some **bold** and *italic* words inside of it.
 More blah blah text here."""
         self.assertEqual(blockutils.block_to_block_type(text), blockutils.block_type_paragraph)
+
+
+class TestMarkdownToHTML(unittest.TestCase):
+    def test_heading(self):
+        md = """# This is a heading"""
+        html = blockutils.markdown_to_html_node(md)
+        self.assertEqual(html.to_html(), "<div><h1>This is a heading</h1></div>")
+
+    def test_code(self):
+        md = """```
+{
+    red = 1,
+    blue = 2
+}
+```"""
+        html = blockutils.markdown_to_html_node(md)
+        self.assertEqual(html.to_html(), """<div><pre><code>
+{
+    red = 1,
+    blue = 2
+}
+</code></pre></div>""")
+        
+    def test_quote(self):
+        md = """>Roses are red,
+>   Violets are blue."""
+        html = blockutils.markdown_to_html_node(md)
+        self.assertEqual(html.to_html(), """<div><blockquote>Roses are red,
+   Violets are blue.</blockquote></div>""")
+        
+    def test_uo_list(self):
+        md = """* This is the first list item in a list block
+* This is a list item
+* This is another list item"""
+        html = blockutils.markdown_to_html_node(md)
+        self.assertEqual(html.to_html(), "<div><ul><li>This is the first list item in a list block</li><li>This is a list item</li><li>This is another list item</li></ul></div>")
+    
+    def test_uo_list(self):
+        md = """1. This is the first list item in a list block
+2. This is a list item
+3. This is another list item"""
+        html = blockutils.markdown_to_html_node(md)
+        self.assertEqual(html.to_html(), "<div><ol><li>This is the first list item in a list block</li><li>This is a list item</li><li>This is another list item</li></ol></div>")
+
+    def test_paragraph(self):
+        md = "This is a paragraph of text. It has some **bold** and *italic* words inside of it."
+        html = blockutils.markdown_to_html_node(md)
+        self.assertEqual(html.to_html(), "<div><p>This is a paragraph of text. It has some <b>bold</b> and <i>italic</i> words inside of it.</p></div>")
+
+    def test_all(self):
+        md = """# This is a heading
+
+This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+* This is the first list item in a list block
+* This is a list item
+* This is another list item
+
+1. This is the first list item in a list block
+2. This is a list item
+3. This is another list item
+
+```
+{
+    red = 1,
+    blue = 2
+}
+```
+
+>Roses are red,
+>   Violets are blue."""
+        html = blockutils.markdown_to_html_node(md)
+        self.assertEqual(html.to_html(), """<div><h1>This is a heading</h1><p>This is a paragraph of text. It has some <b>bold</b> and <i>italic</i> words inside of it.</p><ul><li>This is the first list item in a list block</li><li>This is a list item</li><li>This is another list item</li></ul><ol><li>This is the first list item in a list block</li><li>This is a list item</li><li>This is another list item</li></ol><pre><code>
+{
+    red = 1,
+    blue = 2
+}
+</code></pre><blockquote>Roses are red,
+   Violets are blue.</blockquote></div>""")

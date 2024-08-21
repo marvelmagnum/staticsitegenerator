@@ -17,7 +17,12 @@ class HTMLNode():
         return result
     
     def __repr__(self):
-        print(f"Tag: {self.tag}")
-        print(f"Value: {self.value}")
-        print(f"Children: {self.children}")
-        print(f"Props: {self.props_to_html()}")
+        str = ""
+        for child in self.children:
+            str += child.to_html()
+
+        result = self.to_html()
+        return result
+
+
+        
