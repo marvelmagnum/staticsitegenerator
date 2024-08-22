@@ -81,4 +81,5 @@ def main():
     generate_pages(md_path, tem_path, page_path)
 
 
-main()
+if __name__ == "__main__":
+    main()
