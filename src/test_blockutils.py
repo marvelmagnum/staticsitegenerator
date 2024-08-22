@@ -267,7 +267,7 @@ class TestMarkdownToHTML(unittest.TestCase):
 >   Violets are blue."""
         html = blockutils.markdown_to_html_node(md)
         self.assertEqual(html.to_html(), """<div><blockquote>Roses are red,
-   Violets are blue.</blockquote></div>""")
+Violets are blue.</blockquote></div>""")
         
     def test_uo_list(self):
         md = """* This is the first list item in a list block
@@ -317,4 +317,15 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
     blue = 2
 }
 </code></pre><blockquote>Roses are red,
-   Violets are blue.</blockquote></div>""")
+Violets are blue.</blockquote></div>""")
+        
+
+class TestExtractTitle(unittest.TestCase):
+    def test_h1(self):
+        text = "# This is h1"
+        self.assertEqual(blockutils.extract_title(text), "This is h1")
+
+    def test_no_h1_except(self):
+        text = "## This is h1"
+        with self.assertRaises(SyntaxError):
+            blockutils.extract_title(text)

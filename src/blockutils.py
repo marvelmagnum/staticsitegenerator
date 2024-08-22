@@ -98,7 +98,7 @@ def markdown_to_html_node(markdown):
                 block_html.append(ParentNode(f"p", child_nodes))
 
             case "quote":
-                quote_lines = list(map(lambda x: x[1:], block.split('\n')))
+                quote_lines = list(map(lambda x: x[1:].strip(), block.split('\n')))
                 quote = '\n'.join(quote_lines)
                 child_nodes = text_to_child_HTML(quote)
                 block_html.append(ParentNode(f"blockquote", child_nodes))
@@ -122,3 +122,11 @@ def markdown_to_html_node(markdown):
         content_html.extend(block_html)
     return ParentNode("div", content_html)
 
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        if block_to_block_type(block) == block_type_heading:
+            if block[:2] == "# ":
+                return block.split('# ', 1)[1].strip()
+
+    raise SyntaxError("title not found (<h1> header)")
